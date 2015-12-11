@@ -7,6 +7,8 @@ output:
     keep_md: true
 ---
 
+https://github.com/BigDataArjun/RepData_PeerAssessment1/blob/master/PA1_template.Rmd
+
 ## Loading and preprocessing the data
 
 The data for this report can be found at https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip.
@@ -58,14 +60,15 @@ We observe that only the variable *steps* has 2304 missing values
 apply(act, 2, function(x) table(is.na(x)))
 ```
 **Strategy for filling in all of the missing values in the dataset**  
-For any NA values, we fill in with te calculated number for that interval
+For any NA values, we fill in with te calculated mean for that interval
 ```{r}
 library(zoo)
 actFilled <- act
 actFilled$steps <- na.aggregate(act$steps, by=act$interval, FUN=mean)
 ```
 
-**Histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?**
+**Histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?**  
+Here is the histogram ot the total number of steps taken each day after missing values were imputed
 ```{r}
 stepsEachDay <- aggregate(list(steps=actFilled$steps), by = list(date=actFilled$date), FUN = sum, na.rm = TRUE)
 hist(stepsEachDay$steps, breaks=10, main = "Histogram of the total number of steps taken each day",xlab="steps/day", col="dodgerblue")
