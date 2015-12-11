@@ -1,25 +1,99 @@
 ---
 title: "Reproducible Research: Peer Assessment 1"
+author: "cchmusso"
+date: "December 10, 2015"
 output: 
   html_document:
     keep_md: true
 ---
 
+https://github.com/BigDataArjun/RepData_PeerAssessment1/blob/master/PA1_template.Rmd
 
 ## Loading and preprocessing the data
+
+The data for this report can be found at https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip.
+We can read it by using the following command:  
+
+```{r}
+#Assume the activity.csv was placed at the same directory as this Rmarkdown file.  
+setwd("~/workspace/R/coursera/JohnHopkins/ReproducibleResearch/")
+act <- read.csv("activity.csv")
+act$date = as.Date(act$date)
+
+```
 
 
 
 ## What is mean total number of steps taken per day?
 
+**Histogram of the total number of steps taken each day**
+```{r}
+stepsEachDay <- aggregate(list(steps=act$steps), by = list(date=act$date), FUN = sum, na.rm = TRUE)
+hist(stepsEachDay$steps, breaks=10, main = "Histogram of the total number of steps taken each day",xlab="steps/day", col="dodgerblue")
+```
 
+**Mean and median total number of steps taken per day**
+```{r}
+mean(stepsEachDay$steps)
+median(stepsEachDay$steps)
+```
 
 ## What is the average daily activity pattern?
 
+**Plot of the 5-minute interval and the average number of steps taken, averaged across all days**
+```{r}
+stepsPerInterval <- aggregate(list(steps=act$steps), by = list(interval=act$interval), FUN = mean, na.rm = TRUE)
+plot(stepsPerInterval$interval, stepsPerInterval$steps, main = "Plot of the 5-minute interval and \n the average number of steps taken, averaged across all days",xlab="interval", ylab='steps/interval', col="dodgerblue", type='l', lwd=2)
+```
+**Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?**
+```{r}
+stepsPerInterval[which.max(stepsPerInterval$steps), ]
+
+```
 
 
 ## Imputing missing values
 
+**Total number of missing values in the dataset**  
+We observe that only the variable *steps* has 2304 missing values
+```{r}
+apply(act, 2, function(x) table(is.na(x)))
+```
+**Strategy for filling in all of the missing values in the dataset**  
+For any NA values, we fill in with te calculated number for that interval
+```{r}
+library(zoo)
+actFilled <- act
+actFilled$steps <- na.aggregate(act$steps, by=act$interval, FUN=mean)
+```
 
+**Histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?**
+```{r}
+stepsEachDay <- aggregate(list(steps=actFilled$steps), by = list(date=actFilled$date), FUN = sum, na.rm = TRUE)
+hist(stepsEachDay$steps, breaks=10, main = "Histogram of the total number of steps taken each day",xlab="steps/day", col="dodgerblue")
+mean(stepsEachDay$steps)
+median(stepsEachDay$steps)
+```
+As an effect of filling in the missing values, the mean and the median are both higher. We also observe that the mean and the median are now the same.
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+**Factor variable in the dataset with two levels -- "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.**  
+```{r}
+actFilled$dayType = as.factor(weekdays(actFilled$date))
+levels(actFilled$dayType) <- c("weekday","weekday","weekend","weekend","weekday","weekday","weekday")
+```
+
+**Panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). The plot should look something like the following, which was created using simulated data:**  
+The following two figures show the average number of steps taken per interval on weekend and weekdays.  
+The graphs are similar from midnight to the morning hours, but show that the weekend afternoons and evenings tend to be more active than they are on weekdays.
+```{r}
+library(lattice)
+dailyActivity <- aggregate(list(steps = actFilled$steps), by=list(interval = actFilled$interval, dayType = actFilled$dayType), FUN=mean, na.rm=TRUE)
+xyplot(steps ~ interval | dayType, data = dailyActivity, type='l', layout = c(1,2), xlab="Interval", ylab="Number of steps")
+
+```
+
+
+
+
