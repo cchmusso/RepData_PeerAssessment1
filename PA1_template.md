@@ -60,6 +60,7 @@ plot(stepsPerInterval$interval, stepsPerInterval$steps, main = "Plot of the 5-mi
 ```
 
 ![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4-1.png) 
+  
 **Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?**
 
 ```r

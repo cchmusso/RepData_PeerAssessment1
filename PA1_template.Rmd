@@ -42,6 +42,7 @@ median(stepsEachDay$steps)
 stepsPerInterval <- aggregate(list(steps=act$steps), by = list(interval=act$interval), FUN = mean, na.rm = TRUE)
 plot(stepsPerInterval$interval, stepsPerInterval$steps, main = "Plot of the 5-minute interval and \n the average number of steps taken, averaged across all days",xlab="interval", ylab='steps/interval', col="dodgerblue", type='l', lwd=2)
 ```
+  
 **Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?**
 ```{r}
 stepsPerInterval[which.max(stepsPerInterval$steps), ]
